@@ -59,3 +59,17 @@ async def update_ticket_status(ticket_id: str, data: TicketStatusUpdate, db: Asy
     await db.commit()
     await db.refresh(ticket)
     return ticket
+
+
+@router.post("/{ticket_id}/generate-case")
+async def generate_case(ticket_id: str, db: AsyncSession = Depends(get_db)):
+    from app.services.recommendation_service import generate_case_draft
+
+    ticket = await ticket_service.get_ticket(db, ticket_id)
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    draft = await generate_case_draft(db, ticket.id, ticket.solution or "", ticket.identified_root_cause or "")
+    draft["ticket_id"] = ticket.id
+    draft["module_id"] = ticket.module_id
+    draft["deploy_mode"] = ticket.deploy_mode
+    return draft

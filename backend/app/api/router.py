@@ -10,6 +10,8 @@ from app.api.modules import router as modules_router
 from app.api.versions import router as versions_router
 from app.api.attachments import router as attachments_router
 from app.api.troubleshooting_paths import router as troubleshooting_paths_router
+from app.api.ai import router as ai_router
+from app.api.stats import router as stats_router
 
 api_router = APIRouter()
 for r in [
@@ -23,5 +25,7 @@ for r in [
     versions_router,
     attachments_router,
     troubleshooting_paths_router,
+    ai_router,
+    stats_router,
 ]:
     api_router.include_router(r)
