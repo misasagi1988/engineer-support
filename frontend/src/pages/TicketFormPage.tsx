@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Input, Select, Button, Card, message } from 'antd'
+import { Form, Input, Select, Button, Card, message, Space } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { createTicket } from '../api/tickets'
 
