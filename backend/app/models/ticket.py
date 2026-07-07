@@ -25,7 +25,7 @@ class Ticket(Base):
     assignee_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
     identified_root_cause: Mapped[str] = mapped_column(Text, default="")
     solution: Mapped[str] = mapped_column(Text, default="")
-    troubleshooting_checklist: Mapped[dict] = mapped_column(JSON, default=list)
+    troubleshooting_checklist: Mapped[list] = mapped_column(JSON, default=list)
     auto_identified: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     resolved_at: Mapped[datetime] = mapped_column(nullable=True)
