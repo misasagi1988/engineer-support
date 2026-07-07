@@ -9,7 +9,8 @@ import TicketDetailPage from './pages/TicketDetailPage'
 import AILocatePage from './pages/AILocatePage'
 
 import WorkspacePage from './pages/WorkspacePage'
-const KnowledgeListPage = () => <div>知识库（开发中）</div>
+import KnowledgeListPage from './pages/KnowledgeListPage'
+import KnowledgeDetailPage from './pages/KnowledgeDetailPage'
 const AdminPage = () => <div>管理后台（开发中）</div>
 
 const App: React.FC = () => (
@@ -24,6 +25,7 @@ const App: React.FC = () => (
           <Route path="/tickets/:id" element={<TicketDetailPage />} />
           <Route path="/ai-locate" element={<AILocatePage />} />
           <Route path="/knowledge" element={<KnowledgeListPage />} />
+          <Route path="/knowledge/:id" element={<KnowledgeDetailPage />} />
           <Route path="/admin" element={<AdminPage />} />
         </Route>
       </Route>
