@@ -8,7 +8,7 @@ import TicketFormPage from './pages/TicketFormPage'
 import TicketDetailPage from './pages/TicketDetailPage'
 import AILocatePage from './pages/AILocatePage'
 
-const WorkspacePage = () => <div>工作台（开发中）</div>
+import WorkspacePage from './pages/WorkspacePage'
 const KnowledgeListPage = () => <div>知识库（开发中）</div>
 const AdminPage = () => <div>管理后台（开发中）</div>
 
