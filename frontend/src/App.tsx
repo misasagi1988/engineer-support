@@ -11,7 +11,7 @@ import AILocatePage from './pages/AILocatePage'
 import WorkspacePage from './pages/WorkspacePage'
 import KnowledgeListPage from './pages/KnowledgeListPage'
 import KnowledgeDetailPage from './pages/KnowledgeDetailPage'
-const AdminPage = () => <div>管理后台（开发中）</div>
+import AdminPage from './pages/AdminPage'
 
 const App: React.FC = () => (
   <BrowserRouter>
