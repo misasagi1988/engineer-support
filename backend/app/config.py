@@ -1,7 +1,9 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env")
+
     DATABASE_URL: str = "mysql+aiomysql://dev:dev@localhost:3306/engineer_support"
     SECRET_KEY: str = "change-me-in-production"
     ALGORITHM: str = "HS256"
@@ -11,9 +13,6 @@ class Settings(BaseSettings):
     LLM_MODEL: str = "gpt-4o-mini"
     MAX_UPLOAD_SIZE_MB: int = 50
     ATTACHMENT_STORAGE_PATH: str = "./storage/attachments"
-
-    class Config:
-        env_file = ".env"
 
 
 settings = Settings()
