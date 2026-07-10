@@ -13,13 +13,13 @@ from app.schemas.troubleshooting_path import (
 router = APIRouter(prefix="/troubleshooting-paths", tags=["troubleshooting-paths"])
 
 
-@router.get("/", response_model=list[TroubleshootingPathResponse])
+@router.get("", response_model=list[TroubleshootingPathResponse])
 async def list_troubleshooting_paths(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(TroubleshootingPath))
     return result.scalars().all()
 
 
-@router.post("/", response_model=TroubleshootingPathResponse, status_code=201)
+@router.post("", response_model=TroubleshootingPathResponse, status_code=201)
 async def create_troubleshooting_path(data: TroubleshootingPathCreate, db: AsyncSession = Depends(get_db)):
     path = TroubleshootingPath(**data.model_dump(), created_by="admin")
     db.add(path)

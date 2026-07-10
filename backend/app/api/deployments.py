@@ -9,7 +9,7 @@ from app.schemas.deployment import DeploymentCreate, DeploymentUpdate, Deploymen
 router = APIRouter(prefix="/deployments", tags=["deployments"])
 
 
-@router.get("/", response_model=list[DeploymentResponse])
+@router.get("", response_model=list[DeploymentResponse])
 async def list_deployments(
     customer_id: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
@@ -21,7 +21,7 @@ async def list_deployments(
     return result.scalars().all()
 
 
-@router.post("/", response_model=DeploymentResponse, status_code=201)
+@router.post("", response_model=DeploymentResponse, status_code=201)
 async def create_deployment(data: DeploymentCreate, db: AsyncSession = Depends(get_db)):
     deployment = Deployment(**data.model_dump())
     db.add(deployment)

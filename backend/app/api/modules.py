@@ -9,13 +9,13 @@ from app.schemas.module import ModuleCreate, ModuleUpdate, ModuleResponse
 router = APIRouter(prefix="/modules", tags=["modules"])
 
 
-@router.get("/", response_model=list[ModuleResponse])
+@router.get("", response_model=list[ModuleResponse])
 async def list_modules(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Module).order_by(Module.name))
     return result.scalars().all()
 
 
-@router.post("/", response_model=ModuleResponse, status_code=201)
+@router.post("", response_model=ModuleResponse, status_code=201)
 async def create_module(data: ModuleCreate, db: AsyncSession = Depends(get_db)):
     module = Module(**data.model_dump())
     db.add(module)

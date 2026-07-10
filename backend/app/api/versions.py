@@ -9,13 +9,13 @@ from app.schemas.version import VersionCreate, VersionResponse
 router = APIRouter(prefix="/versions", tags=["versions"])
 
 
-@router.get("/", response_model=list[VersionResponse])
+@router.get("", response_model=list[VersionResponse])
 async def list_versions(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Version).order_by(desc(Version.name)))
     return result.scalars().all()
 
 
-@router.post("/", response_model=VersionResponse, status_code=201)
+@router.post("", response_model=VersionResponse, status_code=201)
 async def create_version(data: VersionCreate, db: AsyncSession = Depends(get_db)):
     version = Version(**data.model_dump())
     db.add(version)

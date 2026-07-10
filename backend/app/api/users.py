@@ -9,7 +9,7 @@ from app.schemas.user import UserUpdate
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("/")
+@router.get("")
 async def list_users(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User))
     users = result.scalars().all()
