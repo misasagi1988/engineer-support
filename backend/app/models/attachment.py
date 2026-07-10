@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import String, Text, Enum as SAEnum, BigInteger, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
@@ -19,4 +19,4 @@ class Attachment(Base):
     storage_path: Mapped[str] = mapped_column(String(1000), nullable=False)
     description: Mapped[str] = mapped_column(Text, default="")
     uploaded_by: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
