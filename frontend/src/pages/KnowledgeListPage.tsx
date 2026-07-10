@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Tag, Table, Input, Select, Space, Spin, Typography } from 'antd'
-import { SearchOutlined } from '@ant-design/icons'
+import { Tag, Table, Input, Select, Space, Spin, Typography, Button } from 'antd'
+import { SearchOutlined, PlusOutlined } from '@ant-design/icons'
 import { listCases } from '../api/cases'
 import type { Case } from '../types'
 import type { ColumnsType } from 'antd/es/table'
@@ -105,7 +105,12 @@ const KnowledgeListPage: React.FC = () => {
 
   return (
     <div>
-      <Title level={4}>知识库</Title>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Title level={4} style={{ margin: 0 }}>知识库</Title>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/knowledge/new')}>
+          新建
+        </Button>
+      </div>
 
       <Space style={{ marginBottom: 16 }} wrap>
         <Input

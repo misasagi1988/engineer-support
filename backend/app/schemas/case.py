@@ -12,7 +12,7 @@ class CaseBase(BaseModel):
     confidence_score: float = 0.0
 
 class CaseCreate(CaseBase):
-    ticket_id: str
+    ticket_id: str | None = None
 
 class CaseUpdate(BaseModel):
     title: str | None = None
@@ -26,7 +26,7 @@ class CaseReview(BaseModel):
 
 class CaseResponse(CaseBase):
     id: str
-    ticket_id: str
+    ticket_id: str | None = None
     customer_id: str | None = None
     review_status: str = "draft"
     reviewed_by: str | None = None

@@ -10,7 +10,7 @@ export interface Ticket {
 export interface Case {
   id: string; title: string; module_id: string; deploy_mode: string | null;
   root_cause: string; solution: string; tags: string[]; confidence_score: number;
-  review_status: string; ticket_id: string; customer_id: string | null;
+  review_status: string; ticket_id: string | null; customer_id: string | null;
   created_by: string; created_at: string; updated_at: string; troubleshooting_path: any[];
 }
 export interface Customer { id: string; name: string; contract_level: string; contact_info: string }
