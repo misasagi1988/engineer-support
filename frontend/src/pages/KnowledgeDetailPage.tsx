@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Spin, Card, Tag, Button, Space, Descriptions, Typography, Divider, List } from 'antd'
-import { ArrowLeftOutlined, CheckCircleOutlined, ArchiveOutlined, LinkOutlined } from '@ant-design/icons'
+import { ArrowLeftOutlined, CheckCircleOutlined, FileDoneOutlined, LinkOutlined } from '@ant-design/icons'
 import { getCase, reviewCase } from '../api/cases'
 import type { Case } from '../types'
 
@@ -155,7 +155,7 @@ const KnowledgeDetailPage: React.FC = () => {
               )}
               {data.review_status !== 'archived' && (
                 <Button
-                  icon={<ArchiveOutlined />}
+                  icon={<FileDoneOutlined />}
                   onClick={() => handleReview('archived')}
                 >
                   归档

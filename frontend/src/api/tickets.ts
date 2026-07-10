@@ -8,7 +8,7 @@ export const getTicket = (id: string) =>
   client.get<Ticket>(`/tickets/${id}`)
 
 export const createTicket = (data: Record<string, any>) =>
-  client.post<Ticket>('/tickets', data)
+  client.post<Ticket>('/tickets/', data)
 
 export const updateTicket = (id: string, data: Record<string, any>) =>
   client.put<Ticket>(`/tickets/${id}`, data)
