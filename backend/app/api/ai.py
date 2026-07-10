@@ -39,8 +39,18 @@ async def ai_locate(data: AILocateRequest, db: AsyncSession = Depends(get_db)):
     tp_query = select(TroubleshootingPath)
     if module_id:
         tp_query = tp_query.where(TroubleshootingPath.module_id == module_id)
+    if data.deploy_mode:
+        tp_query = tp_query.where(TroubleshootingPath.deploy_mode == data.deploy_mode)
     tp_result = await db.execute(tp_query)
     tp = tp_result.scalars().first()
+    # Fallback: if no deploy_mode-specific path found, try "all"
+    if not tp and module_id:
+        fallback_query = select(TroubleshootingPath).where(
+            TroubleshootingPath.module_id == module_id,
+            TroubleshootingPath.deploy_mode == "all",
+        )
+        fallback_result = await db.execute(fallback_query)
+        tp = fallback_result.scalars().first()
     steps = tp.steps if tp else []
 
     return AILocateResponse(
@@ -61,7 +71,15 @@ async def get_troubleshooting_path(
 ):
     query = select(TroubleshootingPath).where(TroubleshootingPath.module_id == module_id)
     if deploy_mode:
-        query = query.where(TroubleshootingPath.deploy_mode.in_([deploy_mode, "all"]))
+        query = query.where(TroubleshootingPath.deploy_mode == deploy_mode)
     result = await db.execute(query.order_by(TroubleshootingPath.deploy_mode))
     path = result.scalars().first()
+    # Fallback to "all" if deploy_mode-specific path not found
+    if not path and deploy_mode:
+        fallback_query = select(TroubleshootingPath).where(
+            TroubleshootingPath.module_id == module_id,
+            TroubleshootingPath.deploy_mode == "all",
+        )
+        fallback_result = await db.execute(fallback_query)
+        path = fallback_result.scalars().first()
     return {"steps": path.steps if path else []}

@@ -2,6 +2,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.case import Case
+from app.models.module import Module
+from app.services.llm_service import generate_case_from_ticket
 
 
 async def recommend_cases(
@@ -41,11 +43,35 @@ async def recommend_cases(
 
 
 async def generate_case_draft(
-    db: AsyncSession, ticket_id: str, solution: str, root_cause: str
+    db: AsyncSession,
+    ticket,
 ) -> dict:
+    """Generate a case draft from a resolved ticket using LLM.
+
+    Calls the LLM to produce structured case content, falling back to
+    raw ticket fields when the LLM is unavailable.
+    """
+    module_name = ""
+    if ticket.module_id:
+        m_result = await db.execute(select(Module).where(Module.id == ticket.module_id))
+        m = m_result.scalar_one_or_none()
+        if m:
+            module_name = m.name
+
+    llm_result = await generate_case_from_ticket(
+        description=ticket.description or "",
+        root_cause=ticket.identified_root_cause or "",
+        solution=ticket.solution or "",
+        module_name=module_name,
+    )
+
     return {
-        "title": f"Auto-generated case for ticket {ticket_id[:8]}",
-        "root_cause": root_cause,
-        "solution": solution,
-        "tags": [],
+        "title": llm_result["title"],
+        "root_cause": llm_result["root_cause"],
+        "solution": llm_result["solution"],
+        "troubleshooting_path": llm_result.get("troubleshooting_path", []),
+        "tags": llm_result.get("tags", []),
+        "ticket_id": ticket.id,
+        "module_id": ticket.module_id,
+        "deploy_mode": ticket.deploy_mode,
     }
