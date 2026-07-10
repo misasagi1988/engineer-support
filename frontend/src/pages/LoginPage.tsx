@@ -10,26 +10,46 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate()
   const { login: authLogin } = useAuthStore()
   const [loading, setLoading] = useState(false)
+  const [form] = Form.useForm()
 
-  const onFinish = async (values: { username: string; password: string }) => {
+  const onFinish = async (values: any) => {
     setLoading(true)
     try {
-      const { data } = await login(values.username, values.password)
-      const { data: userData } = await getMe()
-      authLogin(data.access_token, userData)
+      const result = await login(values.username, values.password)
+      console.log('login response:', JSON.stringify(result.data, null, 2))
+      const token = result.data?.access_token
+      console.log('token:', token ? token.slice(0, 20) + '...' : token)
+      if (!token) {
+        message.error('登录失败: 未收到token')
+        return
+      }
+      localStorage.setItem('token', token)
+      const userResult = await getMe()
+      console.log('me response:', JSON.stringify(userResult.data, null, 2))
+      authLogin(token, userResult.data)
       message.success('登录成功')
       navigate('/')
-    } catch {
-      message.error('登录失败，请检查用户名和密码')
+    } catch (err: any) {
+      console.error('login error:', err)
+      message.error('登录失败: ' + (err.response?.data?.detail || err.message))
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields()
+      await onFinish(values)
+    } catch {
+      // validation failed
     }
   }
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5' }}>
       <Card title="运维辅助系统" style={{ width: 400 }}>
-        <Form onFinish={onFinish}>
+        <Form form={form} initialValues={{ username: 'admin', password: 'admin123' }}>
           <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
             <Input prefix={<UserOutlined />} placeholder="用户名" size="large" />
           </Form.Item>
@@ -37,8 +57,8 @@ const LoginPage: React.FC = () => {
             <Input.Password prefix={<LockOutlined />} placeholder="密码" size="large" />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block size="large">
-              登录
+            <Button type="primary" onClick={handleSubmit} loading={loading} block size="large">
+              {loading ? '登录中...' : '登录'}
             </Button>
           </Form.Item>
         </Form>
