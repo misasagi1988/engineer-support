@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Tabs, Table, Button, Modal, Form, Input, Select, Space, Tag, message } from 'antd'
+import { Tabs, Table, Button, Modal, Form, Input, Select, Tag, message } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import * as customers from '../api/customers'
 import * as deployments from '../api/deployments'
@@ -321,7 +321,7 @@ const UsersTab: React.FC = () => {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const res = await customers.listCustomers() // reuse until user endpoint exists
+      await customers.listCustomers() // reuse until user endpoint exists
       setData([])
     } catch { /* ignore */ } finally { setLoading(false) }
   }
@@ -335,7 +335,7 @@ const UsersTab: React.FC = () => {
       title: '角色',
       dataIndex: 'role',
       key: 'role',
-      render: (v: string, record: any) => (
+      render: (v: string) => (
         <Select
           size="small"
           style={{ width: 120 }}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Row, Col, Card, Tag, Descriptions, Button, Input, Checkbox, message, Space, Divider } from 'antd'
-import { useParams, useNavigate } from 'react-router-dom'
+import { Row, Col, Card, Tag, Descriptions, Button, Input, Checkbox, message, Space } from 'antd'
+import { useParams } from 'react-router-dom'
 import { getTicket, updateTicketStatus, generateCase } from '../api/tickets'
 import type { Ticket } from '../types'
 
@@ -22,7 +22,7 @@ const statusLabel: Record<string, string> = {
 
 const TicketDetailPage: React.FC = () => {
   const { id } = useParams()
-  const navigate = useNavigate()
+  
   const [ticket, setTicket] = useState<Ticket | null>(null)
   const [loading, setLoading] = useState(false)
   const [solution, setSolution] = useState('')

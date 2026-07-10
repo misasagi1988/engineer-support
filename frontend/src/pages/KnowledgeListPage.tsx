@@ -49,7 +49,7 @@ const KnowledgeListPage: React.FC = () => {
   }, [filterModule, filterDeployMode, filterStatus])
 
   const uniqueModules = Array.from(new Set(data.map((c) => c.module_id).filter(Boolean)))
-  const uniqueDeployModes = Array.from(new Set(data.map((c) => c.deploy_mode).filter(Boolean)))
+  const uniqueDeployModes = Array.from(new Set(data.map((c) => c.deploy_mode).filter((v): v is string => Boolean(v))))
 
   const columns: ColumnsType<Case> = [
     {

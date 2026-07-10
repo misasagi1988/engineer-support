@@ -5,7 +5,6 @@ import { getDashboardStats } from '../api/stats'
 import { listTickets } from '../api/tickets'
 
 const priorityColor: Record<string, string> = { p0: 'red', p1: 'orange', p2: 'blue', p3: 'green' }
-const statusText: Record<string, string> = { pending: '待处理', processing: '处理中', resolved: '已解决' }
 
 const WorkspacePage: React.FC = () => {
   const navigate = useNavigate()

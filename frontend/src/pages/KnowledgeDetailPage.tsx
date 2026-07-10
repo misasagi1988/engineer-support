@@ -5,7 +5,7 @@ import { ArrowLeftOutlined, CheckCircleOutlined, FileDoneOutlined, LinkOutlined 
 import { getCase, reviewCase } from '../api/cases'
 import type { Case } from '../types'
 
-const { Title, Paragraph, Text } = Typography
+const { Title, Paragraph } = Typography
 
 const DEPLOY_MODE_LABELS: Record<string, string> = {
   standalone: '单机',

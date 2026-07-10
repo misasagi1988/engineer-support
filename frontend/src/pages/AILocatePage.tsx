@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Card, Input, Button, Select, List, Tag, Checkbox, message, Row, Col, Divider } from 'antd'
+import { Card, Input, Button, List, Tag, Checkbox, message, Row, Col } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
 import { locate } from '../api/ai'
 import type { AILocateResult } from '../types'
