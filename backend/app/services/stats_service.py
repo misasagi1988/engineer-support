@@ -5,13 +5,17 @@ from app.models.ticket import Ticket
 
 
 async def get_dashboard_stats(db: AsyncSession) -> dict:
-    total = await db.execute(select(func.count(Ticket.id)))
-    pending = await db.execute(select(func.count(Ticket.id)).where(Ticket.status == "pending"))
-    processing = await db.execute(select(func.count(Ticket.id)).where(Ticket.status == "processing"))
-    resolved = await db.execute(select(func.count(Ticket.id)).where(Ticket.status == "resolved"))
+    # Single query using GROUP BY instead of 4 separate full-table COUNT scans
+    result = await db.execute(
+        select(Ticket.status, func.count(Ticket.id))
+        .group_by(Ticket.status)
+    )
+    counts = dict(result.all())
+
     return {
-        "total": total.scalar(),
-        "pending": pending.scalar(),
-        "processing": processing.scalar(),
-        "resolved": resolved.scalar(),
+        "total": sum(counts.values()),
+        "pending": counts.get("pending", 0),
+        "processing": counts.get("processing", 0),
+        "resolved": counts.get("resolved", 0),
+        "closed": counts.get("closed", 0),
     }
