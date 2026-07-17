@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import String, Enum as SAEnum, ForeignKey, JSON
 from sqlalchemy.orm import Mapped, mapped_column
@@ -17,5 +17,5 @@ class Deployment(Base):
     version_id: Mapped[str] = mapped_column(String(36), ForeignKey("versions.id"), nullable=True)
     environment: Mapped[str] = mapped_column(SAEnum("production", "staging", "test"), default="production")
     config_summary: Mapped[dict] = mapped_column(JSON, default=dict)
-    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))

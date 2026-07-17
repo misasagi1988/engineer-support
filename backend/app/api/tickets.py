@@ -26,7 +26,7 @@ async def list_tickets(
 
 
 @router.post("", response_model=TicketResponse, status_code=201)
-async def create_ticket(data: TicketCreate, db: AsyncSession = Depends(get_db)):
+async def create_ticket(data: TicketCreate, db: AsyncSession = Depends(get_db), user_id: str = Depends(get_current_user_id)):
     return await ticket_service.create_ticket(db, data)
 
 
@@ -71,8 +71,24 @@ async def update_ticket_status(ticket_id: str, data: TicketStatusUpdate, db: Asy
 @router.post("/{ticket_id}/generate-case")
 async def generate_case(ticket_id: str, db: AsyncSession = Depends(get_db), user_id: str = Depends(get_current_user_id)):
     from app.services.recommendation_service import generate_case_draft
+    from app.schemas.case import CaseCreate
+    from app.services import case_service
 
     ticket = await ticket_service.get_ticket(db, ticket_id)
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket not found")
-    return await generate_case_draft(db, ticket)
+
+    draft = await generate_case_draft(db, ticket)
+    case_data = CaseCreate(
+        title=draft["title"],
+        module_id=draft["module_id"],
+        deploy_mode=draft.get("deploy_mode"),
+        root_cause=draft["root_cause"],
+        solution=draft["solution"],
+        troubleshooting_path=draft.get("troubleshooting_path", []),
+        tags=draft.get("tags", []),
+        ticket_id=ticket.id,
+        customer_id=ticket.customer_id,
+    )
+    case = await case_service.create_case(db, case_data, created_by=user_id)
+    return case

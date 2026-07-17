@@ -64,16 +64,16 @@ const TicketFormPage: React.FC = () => {
         </Form.Item>
         <Form.Item name="priority" label="优先级" rules={[{ required: true, message: '请选择优先级' }]}>
           <Select placeholder="请选择优先级">
-            <Option value="P0">P0</Option>
-            <Option value="P1">P1</Option>
-            <Option value="P2">P2</Option>
-            <Option value="P3">P3</Option>
+            <Option value="p0">P0</Option>
+            <Option value="p1">P1</Option>
+            <Option value="p2">P2</Option>
+            <Option value="p3">P3</Option>
           </Select>
         </Form.Item>
         <Form.Item name="source" label="来源">
           <Select placeholder="请选择来源">
             <Option value="jira">Jira</Option>
-            <Option value="wecom">企微</Option>
+            <Option value="wechat">企微</Option>
             <Option value="manual">手动</Option>
           </Select>
         </Form.Item>

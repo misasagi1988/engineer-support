@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.auth import get_current_user_id
 from app.db.session import get_db
 from app.models.customer import Customer
 from app.schemas.customer import CustomerCreate, CustomerUpdate, CustomerResponse
@@ -16,7 +17,7 @@ async def list_customers(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("", response_model=CustomerResponse, status_code=201)
-async def create_customer(data: CustomerCreate, db: AsyncSession = Depends(get_db)):
+async def create_customer(data: CustomerCreate, db: AsyncSession = Depends(get_db), user_id: str = Depends(get_current_user_id)):
     customer = Customer(**data.model_dump())
     db.add(customer)
     await db.commit()
@@ -34,7 +35,7 @@ async def get_customer(customer_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/{customer_id}", response_model=CustomerResponse)
-async def update_customer(customer_id: str, data: CustomerUpdate, db: AsyncSession = Depends(get_db)):
+async def update_customer(customer_id: str, data: CustomerUpdate, db: AsyncSession = Depends(get_db), user_id: str = Depends(get_current_user_id)):
     result = await db.execute(select(Customer).where(Customer.id == customer_id))
     customer = result.scalar_one_or_none()
     if not customer:

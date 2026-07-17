@@ -6,7 +6,8 @@ from app.schemas.case import CaseCreate
 async def create_case(db: AsyncSession, data: CaseCreate, created_by: str) -> Case:
     case = Case(**data.model_dump(), created_by=created_by)
     db.add(case)
-    await db.flush()
+    await db.commit()
+    await db.refresh(case)
     return case
 
 async def get_case(db: AsyncSession, case_id: str) -> Case | None:

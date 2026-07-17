@@ -49,7 +49,7 @@ const LoginPage: React.FC = () => {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5' }}>
       <Card title="运维辅助系统" style={{ width: 400 }}>
-        <Form form={form} initialValues={{ username: 'admin', password: 'admin123' }}>
+        <Form form={form} initialValues={{ username: '', password: '' }}>
           <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
             <Input prefix={<UserOutlined />} placeholder="用户名" size="large" />
           </Form.Item>

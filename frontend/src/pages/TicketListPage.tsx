@@ -8,15 +8,15 @@ import type { Ticket } from '../types'
 const { Option } = Select
 
 const priorityColor: Record<string, string> = {
-  P0: 'red',
-  P1: 'orange',
-  P2: 'blue',
-  P3: 'green',
+  p0: 'red',
+  p1: 'orange',
+  p2: 'blue',
+  p3: 'green',
 }
 
 const statusLabel: Record<string, string> = {
   pending: '待处理',
-  in_progress: '处理中',
+  processing: '处理中',
   resolved: '已解决',
   closed: '已关闭',
 }
@@ -113,7 +113,7 @@ const TicketListPage: React.FC = () => {
             onChange={setStatusFilter}
           >
             <Option value="pending">待处理</Option>
-            <Option value="in_progress">处理中</Option>
+            <Option value="processing">处理中</Option>
             <Option value="resolved">已解决</Option>
             <Option value="closed">已关闭</Option>
           </Select>
@@ -124,10 +124,10 @@ const TicketListPage: React.FC = () => {
             value={priorityFilter}
             onChange={setPriorityFilter}
           >
-            <Option value="P0">P0</Option>
-            <Option value="P1">P1</Option>
-            <Option value="P2">P2</Option>
-            <Option value="P3">P3</Option>
+            <Option value="p0">P0</Option>
+            <Option value="p1">P1</Option>
+            <Option value="p2">P2</Option>
+            <Option value="p3">P3</Option>
           </Select>
         </Space>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/tickets/new')}>

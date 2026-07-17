@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.auth import get_current_user_id
 from app.db.session import get_db
 from app.models.troubleshooting_path import TroubleshootingPath
 from app.schemas.troubleshooting_path import (
@@ -20,8 +21,8 @@ async def list_troubleshooting_paths(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("", response_model=TroubleshootingPathResponse, status_code=201)
-async def create_troubleshooting_path(data: TroubleshootingPathCreate, db: AsyncSession = Depends(get_db)):
-    path = TroubleshootingPath(**data.model_dump(), created_by="admin")
+async def create_troubleshooting_path(data: TroubleshootingPathCreate, db: AsyncSession = Depends(get_db), user_id: str = Depends(get_current_user_id)):
+    path = TroubleshootingPath(**data.model_dump(), created_by=user_id)
     db.add(path)
     await db.commit()
     await db.refresh(path)
@@ -30,7 +31,7 @@ async def create_troubleshooting_path(data: TroubleshootingPathCreate, db: Async
 
 @router.put("/{path_id}", response_model=TroubleshootingPathResponse)
 async def update_troubleshooting_path(
-    path_id: str, data: TroubleshootingPathUpdate, db: AsyncSession = Depends(get_db)
+    path_id: str, data: TroubleshootingPathUpdate, db: AsyncSession = Depends(get_db), user_id: str = Depends(get_current_user_id)
 ):
     result = await db.execute(select(TroubleshootingPath).where(TroubleshootingPath.id == path_id))
     path = result.scalar_one_or_none()

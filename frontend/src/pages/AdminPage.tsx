@@ -6,6 +6,7 @@ import * as deployments from '../api/deployments'
 import * as modules from '../api/modules'
 import * as versions from '../api/versions'
 import * as paths from '../api/troubleshootingPaths'
+import * as usersApi from '../api/users'
 
 const AdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('customers')
@@ -72,7 +73,7 @@ const CustomersTab: React.FC = () => {
             <Select options={[
               { label: '基础', value: 'basic' },
               { label: '标准', value: 'standard' },
-              { label: '高级', value: 'premium' },
+              { label: 'VIP', value: 'vip' },
             ]} />
           </Form.Item>
           <Form.Item name="contact_info" label="联系方式">
@@ -128,15 +129,16 @@ const DeploymentsTab: React.FC = () => {
           </Form.Item>
           <Form.Item name="deploy_mode" label="部署模式" rules={[{ required: true }]}>
             <Select options={[
-              { label: '云部署', value: 'cloud' },
-              { label: '本地部署', value: 'on-premise' },
-              { label: '混合部署', value: 'hybrid' },
+              { label: '单机', value: 'standalone' },
+              { label: 'HA', value: 'ha' },
+              { label: '集群', value: 'cluster' },
+              { label: '上下级', value: 'hierarchical' },
             ]} />
           </Form.Item>
           <Form.Item name="environment" label="环境" rules={[{ required: true }]}>
             <Select options={[
-              { label: '开发', value: 'development' },
-              { label: '测试', value: 'staging' },
+              { label: '测试', value: 'test' },
+              { label: '预发布', value: 'staging' },
               { label: '生产', value: 'production' },
             ]} />
           </Form.Item>
@@ -321,8 +323,8 @@ const UsersTab: React.FC = () => {
   const fetchData = async () => {
     setLoading(true)
     try {
-      await customers.listCustomers() // reuse until user endpoint exists
-      setData([])
+      const res = await usersApi.listUsers()
+      setData(Array.isArray(res.data) ? res.data : res.data?.data ?? [])
     } catch { /* ignore */ } finally { setLoading(false) }
   }
 
@@ -330,24 +332,27 @@ const UsersTab: React.FC = () => {
 
   const columns: ColumnsType<any> = [
     { title: '用户名', dataIndex: 'username', key: 'username' },
-    { title: '邮箱', dataIndex: 'email', key: 'email' },
     {
       title: '角色',
       dataIndex: 'role',
       key: 'role',
-      render: (v: string) => (
+      render: (v: string, record: any) => (
         <Select
           size="small"
           style={{ width: 120 }}
           value={v}
           options={[
             { label: '管理员', value: 'admin' },
-            { label: '运营', value: 'operator' },
-            { label: '普通用户', value: 'user' },
+            { label: '运维', value: 'operator' },
           ]}
           onChange={async (value) => {
-            // TODO: call user update API
-            message.info(`角色已更新为: ${value}`)
+            try {
+              await usersApi.updateUserRole(record.id, value)
+              message.success(`角色已更新`)
+              fetchData()
+            } catch {
+              message.error(`更新角色失败`)
+            }
           }}
         />
       ),

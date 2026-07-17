@@ -1,7 +1,10 @@
 import json
+import logging
 import re
 
 import httpx
+
+logger = logging.getLogger(__name__)
 
 from app.config import settings
 
@@ -86,6 +89,7 @@ async def analyze_problem(description: str, modules: list[str], versions: list[s
                 return _fallback_keyword_match(description, modules, versions)
             return parsed
     except Exception:
+        logger.exception("LLM analyze_problem failed, using fallback")
         return _fallback_keyword_match(description, modules, versions)
 
 
@@ -138,6 +142,7 @@ async def generate_case_from_ticket(
             parsed.setdefault("tags", [])
             return parsed
     except Exception:
+        logger.exception("LLM generate_case_from_ticket failed, using fallback")
         return fallback
 
 

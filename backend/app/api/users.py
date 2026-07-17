@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.auth import get_current_user_id, require_admin
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.user import UserUpdate
@@ -10,17 +11,17 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("")
-async def list_users(db: AsyncSession = Depends(get_db)):
+async def list_users(db: AsyncSession = Depends(get_db), user_id: str = Depends(get_current_user_id)):
     result = await db.execute(select(User))
     users = result.scalars().all()
     return [
-        {"id": u.id, "username": u.username, "email": u.email, "role": u.role}
+        {"id": u.id, "username": u.username, "role": u.role}
         for u in users
     ]
 
 
 @router.put("/{user_id}/role")
-async def update_user_role(user_id: str, data: UserUpdate, db: AsyncSession = Depends(get_db)):
+async def update_user_role(user_id: str, data: UserUpdate, db: AsyncSession = Depends(get_db), current_user_id: str = Depends(get_current_user_id)):
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:

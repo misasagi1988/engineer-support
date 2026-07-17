@@ -6,10 +6,11 @@ from app.config import settings
 
 app = FastAPI(title="Ops Assistant API", version="0.1.0")
 
+origins = settings.cors_origins_list
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
-    allow_credentials=True,
+    allow_origins=origins,
+    allow_credentials=origins != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )

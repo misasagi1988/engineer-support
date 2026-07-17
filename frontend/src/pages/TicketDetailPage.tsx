@@ -7,15 +7,15 @@ import type { Ticket } from '../types'
 const { TextArea } = Input
 
 const priorityColor: Record<string, string> = {
-  P0: 'red',
-  P1: 'orange',
-  P2: 'blue',
-  P3: 'green',
+  p0: 'red',
+  p1: 'orange',
+  p2: 'blue',
+  p3: 'green',
 }
 
 const statusLabel: Record<string, string> = {
   pending: '待处理',
-  in_progress: '处理中',
+  processing: '处理中',
   resolved: '已解决',
   closed: '已关闭',
 }
@@ -128,9 +128,9 @@ const TicketDetailPage: React.FC = () => {
           <Space wrap>
             <Button
               type="primary"
-              onClick={() => handleStatusUpdate('in_progress')}
+              onClick={() => handleStatusUpdate('processing')}
               loading={updating}
-              disabled={ticket.status === 'in_progress'}
+              disabled={ticket.status === 'processing'}
             >
               处理中
             </Button>

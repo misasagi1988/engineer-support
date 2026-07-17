@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.auth import get_current_user_id
 from app.db.session import get_db
 from app.models.module import Module
 from app.models.version import Version
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/ai", tags=["ai"])
 
 
 @router.post("/locate", response_model=AILocateResponse)
-async def ai_locate(data: AILocateRequest, db: AsyncSession = Depends(get_db)):
+async def ai_locate(data: AILocateRequest, db: AsyncSession = Depends(get_db), user_id: str = Depends(get_current_user_id)):
     modules_result = await db.execute(select(Module.name))
     modules = [r[0] for r in modules_result.all()]
 
@@ -68,6 +69,7 @@ async def get_troubleshooting_path(
     module_id: str,
     deploy_mode: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
+    user_id: str = Depends(get_current_user_id),
 ):
     query = select(TroubleshootingPath).where(TroubleshootingPath.module_id == module_id)
     if deploy_mode:
