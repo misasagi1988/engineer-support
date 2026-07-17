@@ -1,8 +1,10 @@
-import React from 'react'
-import { Form, Input, Select, Button, Card, message, Space } from 'antd'
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
+import React, { useEffect, useState } from 'react'
+import { Form, Input, Select, Button, Card, message, Space, Alert } from 'antd'
+import { PlusOutlined, DeleteOutlined, SettingOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { createCase } from '../api/cases'
+import { listModules } from '../api/modules'
+import type { Module } from '../types'
 
 const { TextArea } = Input
 
@@ -15,6 +17,16 @@ const KnowledgeFormPage: React.FC = () => {
   const navigate = useNavigate()
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
+  const [modules, setModules] = useState<Module[]>([])
+  const [modulesLoading, setModulesLoading] = useState(false)
+
+  useEffect(() => {
+    setModulesLoading(true)
+    listModules()
+      .then((res) => setModules(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setModules([]))
+      .finally(() => setModulesLoading(false))
+  }, [])
 
   const handleSubmit = async (values: Record<string, any>) => {
     setLoading(true)
@@ -49,6 +61,23 @@ const KnowledgeFormPage: React.FC = () => {
 
   return (
     <Card title="新建知识条目">
+      {!modulesLoading && modules.length === 0 && (
+        <Alert
+          message="尚未创建任何模块"
+          description={
+            <>
+              知识条目必须关联一个模块。请先前往
+              <Button type="link" icon={<SettingOutlined />} onClick={() => navigate('/admin')} style={{ padding: '0 4px' }}>
+                管理后台 → 模块管理
+              </Button>
+              创建模块后再添加知识条目。
+            </>
+          }
+          type="warning"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      )}
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <Form.Item
           name="title"
@@ -61,9 +90,16 @@ const KnowledgeFormPage: React.FC = () => {
         <Form.Item
           name="module_id"
           label="模块"
-          rules={[{ required: true, message: '请输入模块' }]}
+          rules={[{ required: true, message: '请选择模块' }]}
         >
-          <Input placeholder="请输入模块标识（待数据源接入后改为下拉选择）" />
+          <Select
+            placeholder="请选择模块"
+            loading={modulesLoading}
+            showSearch
+            optionFilterProp="label"
+            notFoundContent={modulesLoading ? '加载中...' : '暂无模块，请先在管理后台创建'}
+            options={modules.map((m) => ({ label: m.name, value: m.id }))}
+          />
         </Form.Item>
 
         <Form.Item name="deploy_mode" label="部署模式">
