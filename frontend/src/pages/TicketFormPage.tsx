@@ -1,7 +1,11 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Form, Input, Select, Button, Card, message, Space } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { createTicket } from '../api/tickets'
+import { listCustomers } from '../api/customers'
+import { listModules } from '../api/modules'
+import { listVersions } from '../api/versions'
+import type { Customer, Module, Version } from '../types'
 
 const { TextArea } = Input
 const { Option } = Select
@@ -10,6 +14,15 @@ const TicketFormPage: React.FC = () => {
   const navigate = useNavigate()
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [modules, setModules] = useState<Module[]>([])
+  const [versions, setVersions] = useState<Version[]>([])
+
+  useEffect(() => {
+    listCustomers().then(r => setCustomers(Array.isArray(r.data) ? r.data : [])).catch(() => {})
+    listModules().then(r => setModules(Array.isArray(r.data) ? r.data : [])).catch(() => {})
+    listVersions().then(r => setVersions(Array.isArray(r.data) ? r.data : [])).catch(() => {})
+  }, [])
 
   const handleSubmit = async (values: Record<string, any>) => {
     setLoading(true)
@@ -35,24 +48,24 @@ const TicketFormPage: React.FC = () => {
           <TextArea rows={4} placeholder="请详细描述问题" />
         </Form.Item>
         <Form.Item name="customer_id" label="客户">
-          <Select placeholder="请选择客户（待接入）" allowClear>
-            <Option value="">待接入客户数据</Option>
-          </Select>
+          <Select placeholder="请选择客户" allowClear showSearch optionFilterProp="label"
+            options={customers.map(c => ({ label: c.name, value: c.id }))}
+          />
         </Form.Item>
         <Form.Item name="deployment_id" label="部署">
-          <Select placeholder="请选择部署（待接入）" allowClear>
-            <Option value="">待接入部署数据</Option>
+          <Select placeholder="请先选择客户后选择部署" allowClear disabled>
+            <Option value="">请先选择客户</Option>
           </Select>
         </Form.Item>
         <Form.Item name="module_id" label="模块">
-          <Select placeholder="请选择模块（待接入）" allowClear>
-            <Option value="">待接入模块数据</Option>
-          </Select>
+          <Select placeholder="请选择模块" allowClear showSearch optionFilterProp="label"
+            options={modules.map(m => ({ label: m.name, value: m.id }))}
+          />
         </Form.Item>
         <Form.Item name="version_id" label="版本">
-          <Select placeholder="请选择版本（待接入）" allowClear>
-            <Option value="">待接入版本数据</Option>
-          </Select>
+          <Select placeholder="请选择版本" allowClear
+            options={versions.filter(v => v.is_active).map(v => ({ label: v.name, value: v.id }))}
+          />
         </Form.Item>
         <Form.Item name="deploy_mode" label="部署模式">
           <Select placeholder="请选择部署模式">

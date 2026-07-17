@@ -91,6 +91,8 @@ const DeploymentsTab: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [form] = Form.useForm()
+  const [customerOptions, setCustomerOptions] = useState<{label: string; value: string}[]>([])
+  const [versionOptions, setVersionOptions] = useState<{label: string; value: string}[]>([])
 
   const fetchData = async () => {
     setLoading(true)
@@ -100,7 +102,17 @@ const DeploymentsTab: React.FC = () => {
     } catch { /* ignore */ } finally { setLoading(false) }
   }
 
-  useEffect(() => { fetchData() }, [])
+  useEffect(() => {
+    fetchData()
+    customers.listCustomers().then(r => {
+      const list = Array.isArray(r.data) ? r.data : r.data?.data ?? []
+      setCustomerOptions(list.map((c: any) => ({ label: c.name, value: c.id })))
+    }).catch(() => {})
+    versions.listVersions().then(r => {
+      const list = Array.isArray(r.data) ? r.data : []
+      setVersionOptions(list.filter((v: any) => v.is_active).map((v: any) => ({ label: v.name, value: v.id })))
+    }).catch(() => {})
+  }, [])
 
   const handleSubmit = async () => {
     const values = await form.validateFields()
@@ -124,6 +136,11 @@ const DeploymentsTab: React.FC = () => {
       <Table columns={columns} dataSource={data} loading={loading} rowKey="id" />
       <Modal title="新增部署" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={handleSubmit}>
         <Form form={form} layout="vertical">
+          <Form.Item name="customer_id" label="客户" rules={[{ required: true, message: '请选择客户' }]}>
+            <Select placeholder="请选择客户" showSearch optionFilterProp="label"
+              options={customerOptions}
+            />
+          </Form.Item>
           <Form.Item name="name" label="部署名称" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
@@ -141,6 +158,11 @@ const DeploymentsTab: React.FC = () => {
               { label: '预发布', value: 'staging' },
               { label: '生产', value: 'production' },
             ]} />
+          </Form.Item>
+          <Form.Item name="version_id" label="关联版本">
+            <Select placeholder="请选择版本" allowClear showSearch optionFilterProp="label"
+              options={versionOptions}
+            />
           </Form.Item>
         </Form>
       </Modal>
@@ -265,6 +287,7 @@ const TroubleshootingTab: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [form] = Form.useForm()
+  const [moduleOptions, setModuleOptions] = useState<{label: string; value: string}[]>([])
 
   const fetchData = async () => {
     setLoading(true)
@@ -274,7 +297,13 @@ const TroubleshootingTab: React.FC = () => {
     } catch { /* ignore */ } finally { setLoading(false) }
   }
 
-  useEffect(() => { fetchData() }, [])
+  useEffect(() => {
+    fetchData()
+    modules.listModules().then(r => {
+      const list = Array.isArray(r.data) ? r.data : []
+      setModuleOptions(list.map((m: any) => ({ label: m.name, value: m.id })))
+    }).catch(() => {})
+  }, [])
 
   const handleSubmit = async () => {
     const values = await form.validateFields()
@@ -298,11 +327,19 @@ const TroubleshootingTab: React.FC = () => {
       <Table columns={columns} dataSource={data} loading={loading} rowKey="id" />
       <Modal title="新增排查路径" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={handleSubmit}>
         <Form form={form} layout="vertical">
-          <Form.Item name="module_id" label="模块ID" rules={[{ required: true }]}>
-            <Input />
+          <Form.Item name="module_id" label="模块" rules={[{ required: true, message: '请选择模块' }]}>
+            <Select placeholder="请选择模块" showSearch optionFilterProp="label"
+              options={moduleOptions}
+            />
           </Form.Item>
-          <Form.Item name="deploy_mode" label="部署模式" rules={[{ required: true }]}>
-            <Input />
+          <Form.Item name="deploy_mode" label="部署模式" rules={[{ required: true, message: '请选择部署模式' }]}>
+            <Select placeholder="请选择部署模式" options={[
+              { label: '全部适用', value: 'all' },
+              { label: '单机', value: 'standalone' },
+              { label: 'HA', value: 'ha' },
+              { label: '集群', value: 'cluster' },
+              { label: '上下级', value: 'hierarchical' },
+            ]} />
           </Form.Item>
           <Form.Item name="version" label="版本" rules={[{ required: true }]}>
             <Input />
@@ -330,6 +367,25 @@ const UsersTab: React.FC = () => {
 
   useEffect(() => { fetchData() }, [])
 
+  const handleCreateUser = async () => {
+    try {
+      const values = await form.validateFields()
+      await usersApi.createUser(values)
+      message.success('用户创建成功')
+      setModalOpen(false)
+      form.resetFields()
+      fetchData()
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        message.error('用户名已存在')
+      } else if (err.errorFields) {
+        // form validation error, do nothing
+      } else {
+        message.error('创建用户失败')
+      }
+    }
+  }
+
   const columns: ColumnsType<any> = [
     { title: '用户名', dataIndex: 'username', key: 'username' },
     {
@@ -343,7 +399,7 @@ const UsersTab: React.FC = () => {
           value={v}
           options={[
             { label: '管理员', value: 'admin' },
-            { label: '运维', value: 'operator' },
+            { label: '运维人员', value: 'operator' },
           ]}
           onChange={async (value) => {
             try {
@@ -363,19 +419,27 @@ const UsersTab: React.FC = () => {
     <>
       <Button type="primary" onClick={() => setModalOpen(true)} style={{ marginBottom: 16 }}>新增</Button>
       <Table columns={columns} dataSource={data} loading={loading} rowKey="id" />
-      <Modal title="新增用户" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={() => setModalOpen(false)}>
+      <Modal title="新增用户" open={modalOpen} onCancel={() => { setModalOpen(false); form.resetFields() }} onOk={handleCreateUser}>
         <Form form={form} layout="vertical">
-          <Form.Item name="username" label="用户名" rules={[{ required: true }]}>
+          <Form.Item name="username" label="用户名" rules={[{ required: true, message: '请输入用户名' }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="email" label="邮箱" rules={[{ required: true, type: 'email' }]}>
+          <Form.Item name="email" label="邮箱" rules={[
+            { required: true, message: '请输入邮箱' },
+            { type: 'email', message: '请输入有效的邮箱地址' },
+          ]}>
             <Input />
           </Form.Item>
-          <Form.Item name="role" label="角色">
+          <Form.Item name="password" label="密码" rules={[
+            { required: true, message: '请输入密码' },
+            { min: 6, message: '密码至少6位' },
+          ]}>
+            <Input.Password />
+          </Form.Item>
+          <Form.Item name="role" label="角色" rules={[{ required: true, message: '请选择角色' }]}>
             <Select options={[
+              { label: '运维人员', value: 'operator' },
               { label: '管理员', value: 'admin' },
-              { label: '运营', value: 'operator' },
-              { label: '普通用户', value: 'user' },
             ]} />
           </Form.Item>
         </Form>
